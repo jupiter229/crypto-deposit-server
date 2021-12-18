@@ -7,9 +7,11 @@ import { BullModule } from '@nestjs/bull';
 import { Asset, AssetSchema } from '../asset/schemas/asset.schema';
 import { Deposit, DepositSchema } from '../address/schema/deposit.schema';
 import { Block, BlockSchema } from '../block-scheduler/schema/block.schema';
+import { BroadcasterModule } from '../broadcaster/broadcaster.module';
 
 @Module({
   imports: [
+    BroadcasterModule,
     BullModule.registerQueue({
       name: 'btc_scrapper',
     }),

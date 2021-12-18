@@ -6,6 +6,11 @@ import { AuthDocument, Auth } from './schemas/auth.schema';
 import * as bcryptjs from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import {
+  UserSettings,
+  UserSettingsDocument,
+} from './schemas/user.settings.schema';
+import { UserSettingsDto } from './dto/user.settings.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -13,6 +18,8 @@ export class AuthenticationService {
     private configService: ConfigService,
     private jwtService: JwtService,
     @InjectModel(Auth.name) private authDocumentModel: Model<AuthDocument>,
+    @InjectModel(UserSettings.name)
+    private userSettingsDocumentModel: Model<UserSettingsDocument>,
   ) {}
   async register(createUserDto: CreateUserDto) {
     const existingUser = await this.authDocumentModel.findOne({
@@ -57,5 +64,23 @@ export class AuthenticationService {
       }
     }
     return null;
+  }
+
+  async saveUserSettings(user: AuthDocument, userSettings: UserSettingsDto) {
+    const existingSettings = await this.userSettingsDocumentModel.findOne({
+      user: user.id,
+    });
+    if (existingSettings) {
+      return this.userSettingsDocumentModel.updateOne(
+        { id: existingSettings.id },
+        {
+          callbackUrl: userSettings.callbackUrl,
+        },
+      );
+    }
+    return this.userSettingsDocumentModel.create({
+      user: user.id,
+      callbackUrl: userSettings.callbackUrl,
+    });
   }
 }

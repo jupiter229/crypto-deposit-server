@@ -11,6 +11,7 @@ import { BlockSchedulerModule } from './block-scheduler/block-scheduler.module';
 import { AssetModule } from './asset/asset.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { AddressModule } from './address/address.module';
+import { BroadcasterModule } from './broadcaster/broadcaster.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AddressModule } from './address/address.module';
     AssetModule,
     AuthenticationModule,
     AddressModule,
+    BroadcasterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

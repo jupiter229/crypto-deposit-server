@@ -10,12 +10,14 @@ import { Address, AddressDocument } from '../address/schema/address.schema';
 import { Asset, AssetDocument } from '../asset/schemas/asset.schema';
 import { Deposit, DepositDocument } from '../address/schema/deposit.schema';
 import { Block, BlockDocument } from '../block-scheduler/schema/block.schema';
+import { BroadcasterService } from '../broadcaster/broadcaster.service';
 
 @Injectable()
 export class BitcoinService {
   btcClient = new Client();
   private readonly logger = new Logger(BitcoinService.name);
   constructor(
+    private readonly broadcasterService: BroadcasterService,
     @InjectModel(Address.name)
     private addressDocumentModel: Model<AddressDocument>,
     @InjectModel(Asset.name) private assetDocumentModel: Model<AssetDocument>,
@@ -81,9 +83,13 @@ export class BitcoinService {
       blockNumber,
       false,
     );
-    const transactionHashes: Array<string> = blockData.transactions.map(
-      (tx) => tx,
-    );
+    // const transactionHashes: Array<string> = blockData.transactions.map(
+    //   (tx) => tx,
+    // );
+
+    const transactionHashes = [
+      '9fe83e4608f24356fcaa70a7eeed29adb3cfb05f7cd48c03de06191db6045382',
+    ];
 
     const hashesLength = transactionHashes.length;
 
@@ -97,22 +103,23 @@ export class BitcoinService {
       if (cryptoDeposit.amount > 0) {
         await this.broadcastDeposit(cryptoDeposit);
       }
-      await this.blockDocumentModel.updateOne(
-        {
-          height: blockNumber,
-          chain: 'bitcoin',
-        },
-        {
-          hasCompletedScan: true,
-        },
-      );
     }
+    await this.blockDocumentModel.updateOne(
+      {
+        height: blockNumber,
+        chain: 'bitcoin',
+      },
+      {
+        hasCompletedScan: true,
+      },
+    );
     //Complete block scraping
   }
   private async broadcastDeposit(cryptoDeposit: CryptoDepositDto) {
     const existingDeposit = await this.depositDocumentModel.findOne({
       txHash: cryptoDeposit.txHash,
     });
+    await this.broadcasterService.broadcastDeposit(cryptoDeposit);
     if (!existingDeposit) {
       await this.depositDocumentModel.create({
         address: cryptoDeposit.address,
