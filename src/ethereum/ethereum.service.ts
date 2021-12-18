@@ -135,16 +135,16 @@ export class EthereumService {
       if (cryptoDeposit.amount > 0) {
         await this.broadcastDeposit(cryptoDeposit);
       }
-      await this.blockDocumentModel.updateOne(
-        {
-          height: blockNumber,
-          chain: 'ethereum',
-        },
-        {
-          hasCompletedScan: true,
-        },
-      );
     }
+    await this.blockDocumentModel.updateOne(
+      {
+        height: blockNumber,
+        chain: 'ethereum',
+      },
+      {
+        hasCompletedScan: true,
+      },
+    );
   }
   getCurrentBlockHeight() {
     return this.ethClient.chain.getBlockHeight();

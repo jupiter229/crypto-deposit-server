@@ -29,21 +29,20 @@ export class BlockSchedulerService {
     //   height: Number(this.configService.get('ETHEREUM_START_BLOCK')),
     //   chain: 'ethereum',
     // });
-    this.ethereumService.scrapeBlock(11620699);
   }
   private readonly logger = new Logger(BlockSchedulerService.name);
 
   @Cron('* * * * *')
   async handleEthereumCron() {
-    this.logger.debug('handleEthereumCron');
-    const currentBlockHeight = await this.getChainService(
-      'ethereum',
-    ).getCurrentBlockHeight();
-    const pendingBlocks = await this.initPendingBlocks(
-      'ethereum',
-      currentBlockHeight,
-    );
-    console.log(pendingBlocks.length, 'ethereum', currentBlockHeight);
+    // this.logger.debug('handleEthereumCron');
+    // const currentBlockHeight = await this.getChainService(
+    //   'ethereum',
+    // ).getCurrentBlockHeight();
+    // const pendingBlocks = await this.initPendingBlocks(
+    //   'ethereum',
+    //   currentBlockHeight,
+    // );
+    // console.log(pendingBlocks.length, 'ethereum', currentBlockHeight);
     // pendingBlocks.forEach((blockDocument) => {
     //   this.ethereumScrapperQueue.add(
     //     {
@@ -53,7 +52,6 @@ export class BlockSchedulerService {
     //       attempts: 3,
     //       backoff: 15 * 60 * 1000,
     //       delay: 2 * 1000,
-    //       removeOnFail: true,
     //     },
     //   );
     // });
@@ -97,27 +95,26 @@ export class BlockSchedulerService {
 
   @Cron('*/10 * * * *')
   async handleBitcoinCron() {
-    this.logger.debug('handleBitcoinCron');
-    const currentBlockHeight = await this.getChainService(
-      'bitcoin',
-    ).getCurrentBlockHeight();
-    const pendingBlocks = await this.initPendingBlocks(
-      'bitcoin',
-      currentBlockHeight,
-    );
-    console.log(pendingBlocks.length, 'bitcoin');
-    pendingBlocks.forEach((blockDocument) => {
-      this.bitcoinScrapperQueue.add(
-        {
-          blockHeight: blockDocument.height,
-        },
-        {
-          attempts: 3,
-          backoff: 15 * 60 * 1000,
-          delay: 60 * 1000,
-          removeOnFail: true,
-        },
-      );
-    });
+    // this.logger.debug('handleBitcoinCron');
+    // const currentBlockHeight = await this.getChainService(
+    //   'bitcoin',
+    // ).getCurrentBlockHeight();
+    // const pendingBlocks = await this.initPendingBlocks(
+    //   'bitcoin',
+    //   currentBlockHeight,
+    // );
+    // console.log(pendingBlocks.length, 'bitcoin');
+    // pendingBlocks.forEach((blockDocument) => {
+    //   this.bitcoinScrapperQueue.add(
+    //     {
+    //       blockHeight: blockDocument.height,
+    //     },
+    //     {
+    //       attempts: 3,
+    //       backoff: 15 * 60 * 1000,
+    //       delay: 60 * 1000,
+    //     },
+    //   );
+    // });
   }
 }
