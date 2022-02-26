@@ -10,6 +10,12 @@ export class Address {
   @Prop({ required: true, lowercase: true })
   address: string;
 
+  @Prop({})
+  seedPhrase: string;
+
+  @Prop({ type: Number, default: -1 })
+  derivationIndex: number;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Asset' })
   asset: Asset;
 

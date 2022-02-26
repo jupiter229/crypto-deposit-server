@@ -12,6 +12,7 @@ import { AssetModule } from './asset/asset.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { AddressModule } from './address/address.module';
 import { BroadcasterModule } from './broadcaster/broadcaster.module';
+import { NetworkClientModule } from './network-client/network-client.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BroadcasterModule } from './broadcaster/broadcaster.module';
     AuthenticationModule,
     AddressModule,
     BroadcasterModule,
+    NetworkClientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

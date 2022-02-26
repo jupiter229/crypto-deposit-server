@@ -5,6 +5,14 @@ import { Model } from 'mongoose';
 import { CreateAddressDto } from './dto/create.address.dto';
 import { Asset, AssetDocument } from '../asset/schemas/asset.schema';
 import { AuthDocument, Auth } from '../authentication/schemas/auth.schema';
+import { assets as cryptoassets, chains } from '@liquality/cryptoassets';
+import { isEthereumChain } from '../network-client/utils/asset';
+import {
+  CredentialSeed,
+  CredentialSeedDocument,
+} from '../authentication/schemas/credential.seed';
+import { AuthenticationService } from '../authentication/authentication.service';
+import { NetworkClientService } from '../network-client/network-client.service';
 
 @Injectable()
 export class AddressService {
@@ -13,18 +21,80 @@ export class AddressService {
     private addressDocumentModel: Model<AddressDocument>,
     @InjectModel(Asset.name) private assetDocumentModel: Model<AssetDocument>,
     @InjectModel(Auth.name) private authDocumentModel: Model<AuthDocument>,
+    @InjectModel(CredentialSeed.name)
+    private credentialSeedDocumentModel: Model<CredentialSeedDocument>,
+    private readonly authenticationService: AuthenticationService,
+    private readonly networkClientService: NetworkClientService,
   ) {}
 
-  async saveNewAddress(userId: string, createAddressDto: CreateAddressDto) {
+  async generateAddress(
+    userId: string,
+    createAddressDto: CreateAddressDto,
+  ): Promise<AddressDocument> {
+    const credential = await this.credentialSeedDocumentModel.findOne({
+      id: userId,
+    });
+    if (credential) {
+      const seedPhrase = await this.authenticationService.decryptSeedPhrase(
+        credential.seedPhrase,
+      );
+      const networkClient = this.networkClientService.createClient(
+        createAddressDto.code,
+        seedPhrase,
+        Number(credential.currentDerivationIndex) + 1,
+      );
+
+      const addresses = await networkClient.wallet.getAddresses();
+      const result = addresses[0];
+
+      const rawAddress = isEthereumChain(createAddressDto.code)
+        ? result.address.replace('0x', '')
+        : result.address;
+
+      const formattedAddress =
+        chains[cryptoassets[createAddressDto.code]?.chain]?.formatAddress(
+          rawAddress,
+        );
+
+      const address = await this.saveNewAddress(userId, {
+        ...createAddressDto,
+        address: formattedAddress,
+      });
+      if (address) {
+        await this.addressDocumentModel.updateOne(
+          {
+            id: address.id,
+          },
+          {
+            seedPhrase: credential.seedPhrase,
+            derivationIndex: Number(credential.currentDerivationIndex) + 1,
+          },
+        );
+        await this.credentialSeedDocumentModel.updateOne(
+          {
+            id: credential.id,
+          },
+          {
+            currentDerivationIndex:
+              Number(credential.currentDerivationIndex) + 1,
+          },
+        );
+        return address;
+      }
+    }
+  }
+  async saveNewAddress(
+    userId: string,
+    createAddressDto: CreateAddressDto,
+  ): Promise<AddressDocument> {
     const assetDocument = await this.assetDocumentModel.findOne({
-      type: createAddressDto.type,
       code: createAddressDto.code,
       chain: createAddressDto.chain,
     });
 
     if (assetDocument) {
       const existingAddress = await this.addressDocumentModel.findOne({
-        address: createAddressDto.address,
+        // address: createAddressDto.address,
         asset: assetDocument,
       });
       if (existingAddress) {
@@ -40,12 +110,11 @@ export class AddressService {
           id: userId,
         });
         if (user) {
-          await this.addressDocumentModel.create({
+          return this.addressDocumentModel.create({
             address: createAddressDto.address,
             asset: assetDocument,
             user,
           });
-          return;
         }
       }
     }
@@ -57,5 +126,43 @@ export class AddressService {
       },
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  validateNewAddressChain(chain: string) {
+    const validAssetChains = ['ethereum', 'bitcoin'];
+    if (validAssetChains.indexOf(chain.toLowerCase()) === -1) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Unsupported asset chain',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  validateNewAddressType(type: string) {
+    const validAssetTypes = ['native', 'erc20'];
+
+    if (validAssetTypes.indexOf(type.toLowerCase()) === -1) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Unsupported asset type',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  validateAddressNewAddress(chain: string, address: string) {
+    const isAddressValid = chains[chain].isValidAddress(address);
+    if (!isAddressValid) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'InvalidAddress',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
