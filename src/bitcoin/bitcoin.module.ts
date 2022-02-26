@@ -8,6 +8,7 @@ import { Asset, AssetSchema } from '../asset/schemas/asset.schema';
 import { Deposit, DepositSchema } from '../address/schema/deposit.schema';
 import { Block, BlockSchema } from '../block-scheduler/schema/block.schema';
 import { BroadcasterModule } from '../broadcaster/broadcaster.module';
+import { NetworkClientModule } from '../network-client/network-client.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { BroadcasterModule } from '../broadcaster/broadcaster.module';
     BullModule.registerQueue({
       name: 'btc_scrapper',
     }),
+    NetworkClientModule,
     MongooseModule.forFeature([
       { name: Address.name, schema: AddressSchema },
       { name: Asset.name, schema: AssetSchema },

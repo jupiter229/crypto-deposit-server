@@ -11,13 +11,15 @@ import { Asset, AssetDocument } from '../asset/schemas/asset.schema';
 import { Deposit, DepositDocument } from '../address/schema/deposit.schema';
 import { Block, BlockDocument } from '../block-scheduler/schema/block.schema';
 import { BroadcasterService } from '../broadcaster/broadcaster.service';
+import { NetworkClientService } from '../network-client/network-client.service';
 
 @Injectable()
 export class BitcoinService {
-  btcClient = new Client();
+  btcClient;
   private readonly logger = new Logger(BitcoinService.name);
   constructor(
     private readonly broadcasterService: BroadcasterService,
+    private readonly networkClientService: NetworkClientService,
     @InjectModel(Address.name)
     private addressDocumentModel: Model<AddressDocument>,
     @InjectModel(Asset.name) private assetDocumentModel: Model<AssetDocument>,
@@ -26,13 +28,14 @@ export class BitcoinService {
     private depositDocumentModel: Model<DepositDocument>,
     @InjectModel(Block.name) private blockDocumentModel: Model<BlockDocument>,
   ) {
-    this.btcClient.addProvider(
-      new BitcoinRpcProvider({
-        uri: this.configService.get('BTC_RPC_URL'),
-        feeBlockConfirmations: 2,
-        network: BitcoinNetworks.bitcoin_testnet,
-      }),
-    );
+    this.btcClient = this.networkClientService.createClient('BTC');
+    // this.btcClient.addProvider(
+    //   new BitcoinRpcProvider({
+    //     uri: this.configService.get('BTC_RPC_URL'),
+    //     feeBlockConfirmations: 2,
+    //     network: BitcoinNetworks.bitcoin_testnet,
+    //   }),
+    // );
   }
   getCurrentBlockHeight() {
     return this.btcClient.chain.getBlockHeight();
