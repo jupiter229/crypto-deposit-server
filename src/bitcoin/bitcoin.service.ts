@@ -83,13 +83,14 @@ export class BitcoinService {
       blockNumber,
       false,
     );
-    // const transactionHashes: Array<string> = blockData.transactions.map(
-    //   (tx) => tx,
-    // );
+    const transactionHashes: Array<string> = blockData.transactions.map(
+      (tx) => tx,
+    );
 
-    const transactionHashes = [
-      '9fe83e4608f24356fcaa70a7eeed29adb3cfb05f7cd48c03de06191db6045382',
-    ];
+    console.log(transactionHashes, blockNumber);
+    // const transactionHashes = [
+    //   '9fe83e4608f24356fcaa70a7eeed29adb3cfb05f7cd48c03de06191db6045382',
+    // ];
 
     const hashesLength = transactionHashes.length;
 
@@ -113,7 +114,6 @@ export class BitcoinService {
         hasCompletedScan: true,
       },
     );
-    //Complete block scraping
   }
   private async broadcastDeposit(cryptoDeposit: CryptoDepositDto) {
     const existingDeposit = await this.depositDocumentModel.findOne({

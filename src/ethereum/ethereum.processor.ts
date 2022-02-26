@@ -27,7 +27,7 @@ export class EthereumProcessor {
   @OnQueueCompleted()
   onCompleted(job: Job) {
     console.log(
-      `Completed job ${job.id} of type ${job.name} with data}...`,
+      `eth Completed job ${job.id} of type ${job.name} with data}...`,
       job.data,
     );
   }
@@ -35,7 +35,7 @@ export class EthereumProcessor {
   @OnQueueFailed()
   onFailed(job: Job) {
     console.log(
-      `Failed job ${job.id} of type ${job.name} with data}...`,
+      `eth Failed job ${job.id} of type ${job.name} with data}...`,
       job.data,
     );
   }

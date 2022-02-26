@@ -75,12 +75,6 @@ export class EthereumService {
 
         const decodedData = abiDecoder.decodeMethod(transaction._raw.input);
 
-        if (
-          transaction.hash ===
-          '537d53ee930babffd8b3facf44a8b22e102e632ee4c553564dee4c502cabc59c'
-        ) {
-          console.log(decodedData, transaction._raw.input);
-        }
         if (decodedData) {
           const receiveAddress = decodedData.params[0].value;
           const unitAmount = decodedData.params[1].value;
@@ -115,36 +109,36 @@ export class EthereumService {
     return this.ethClient.chain.getTransactionByHash(txHash);
   }
   async scrapeBlock(blockNumber: number) {
-    const blockData = await this.ethClient.chain.getBlockByNumber(
-      blockNumber,
-      false,
-    );
-    const transactionHashes: Array<string> = blockData.transactions.map(
-      (tx) => tx,
-    );
-
-    const hashesLength = transactionHashes.length;
-
-    for (let i = 0; i < hashesLength; i++) {
-      const transaction = await this.getTransactionReceipt(
-        transactionHashes[i],
-      );
-
-      const cryptoDeposit = await this.getAmountDeposited(transaction);
-
-      if (cryptoDeposit.amount > 0) {
-        await this.broadcastDeposit(cryptoDeposit);
-      }
-    }
-    await this.blockDocumentModel.updateOne(
-      {
-        height: blockNumber,
-        chain: 'ethereum',
-      },
-      {
-        hasCompletedScan: true,
-      },
-    );
+    // const blockData = await this.ethClient.chain.getBlockByNumber(
+    //   blockNumber,
+    //   false,
+    // );
+    // const transactionHashes: Array<string> = blockData.transactions.map(
+    //   (tx) => tx,
+    // );
+    //
+    // const hashesLength = transactionHashes.length;
+    //
+    // for (let i = 0; i < hashesLength; i++) {
+    //   const transaction = await this.getTransactionReceipt(
+    //     transactionHashes[i],
+    //   );
+    //
+    //   const cryptoDeposit = await this.getAmountDeposited(transaction);
+    //
+    //   if (cryptoDeposit.amount > 0) {
+    //     await this.broadcastDeposit(cryptoDeposit);
+    //   }
+    // }
+    // await this.blockDocumentModel.updateOne(
+    //   {
+    //     height: blockNumber,
+    //     chain: 'ethereum',
+    //   },
+    //   {
+    //     hasCompletedScan: true,
+    //   },
+    // );
   }
   getCurrentBlockHeight() {
     return this.ethClient.chain.getBlockHeight();
