@@ -31,9 +31,7 @@ export class AddressService {
     userId: string,
     createAddressDto: CreateAddressDto,
   ): Promise<AddressDocument> {
-    const credential = await this.credentialSeedDocumentModel.findOne({
-      id: userId,
-    });
+    const credential = await this.credentialSeedDocumentModel.findById(userId);
     if (credential) {
       const seedPhrase = await this.authenticationService.decryptSeedPhrase(
         credential.seedPhrase,
@@ -44,8 +42,8 @@ export class AddressService {
         Number(credential.currentDerivationIndex) + 1,
       );
 
-      const addresses = await networkClient.wallet.getAddresses();
-      const result = addresses[0];
+      const rawAddresses = await networkClient.wallet.getAddresses();
+      const result = rawAddresses[0];
 
       const rawAddress = isEthereumChain(createAddressDto.code)
         ? result.address.replace('0x', '')
@@ -60,20 +58,15 @@ export class AddressService {
         ...createAddressDto,
         address: formattedAddress,
       });
+
       if (address) {
-        await this.addressDocumentModel.updateOne(
-          {
-            id: address.id,
-          },
-          {
-            seedPhrase: credential.seedPhrase,
-            derivationIndex: Number(credential.currentDerivationIndex) + 1,
-          },
-        );
-        await this.credentialSeedDocumentModel.updateOne(
-          {
-            id: credential.id,
-          },
+        await this.addressDocumentModel.findByIdAndUpdate(address.id, {
+          seedPhrase: credential.seedPhrase,
+          derivationIndex: Number(credential.currentDerivationIndex) + 1,
+        });
+
+        await this.credentialSeedDocumentModel.findByIdAndUpdate(
+          credential.id,
           {
             currentDerivationIndex:
               Number(credential.currentDerivationIndex) + 1,
@@ -106,9 +99,7 @@ export class AddressService {
           HttpStatus.BAD_REQUEST,
         );
       } else {
-        const user = await this.authDocumentModel.findOne({
-          id: userId,
-        });
+        const user = await this.authDocumentModel.findById(userId);
         if (user) {
           return this.addressDocumentModel.create({
             address: createAddressDto.address,

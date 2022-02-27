@@ -40,9 +40,9 @@ export class BroadcasterService {
       //   },
       // );
 
-      const asset = await this.assetDocumentModel.findOne({
-        id: cryptoDeposit.address?.asset,
-      });
+      const asset = await this.assetDocumentModel.findById(
+        cryptoDeposit.address?.asset,
+      );
       console.log(asset);
       if (asset) {
         this.httpService
