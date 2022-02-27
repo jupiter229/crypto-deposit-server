@@ -113,12 +113,12 @@ export class AuthenticationService {
   }
 
   async saveUserSettings(user: AuthDocument, userSettings: UserSettingsDto) {
-    const existingSettings = await this.userSettingsDocumentModel.findOne({
-      user: user.id,
-    });
+    const existingSettings = await this.userSettingsDocumentModel.findById(
+      user.id,
+    );
     if (existingSettings) {
-      return this.userSettingsDocumentModel.updateOne(
-        { id: existingSettings.id },
+      return this.userSettingsDocumentModel.findByIdAndUpdate(
+        existingSettings.id,
         {
           callbackUrl: userSettings.callbackUrl,
         },
