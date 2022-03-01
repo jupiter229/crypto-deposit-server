@@ -13,7 +13,7 @@ export class CredentialSeed {
   currentDerivationIndex: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Auth' })
-  user: Auth;
+  user: Auth | string;
 }
 
 export const CredentialSeedSchema =

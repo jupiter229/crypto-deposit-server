@@ -82,41 +82,41 @@ export class BitcoinService {
     return this.btcClient.getMethod('getParsedTransactionByHash')(txHash, true);
   }
   async scrapeBlock(blockNumber: number) {
-    const blockData = await this.btcClient.chain.getBlockByNumber(
-      blockNumber,
-      false,
-    );
-    const transactionHashes: Array<string> = blockData.transactions.map(
-      (tx) => tx,
-    );
-
-    console.log(transactionHashes, blockNumber);
-    // const transactionHashes = [
-    //   '9fe83e4608f24356fcaa70a7eeed29adb3cfb05f7cd48c03de06191db6045382',
-    // ];
-
-    const hashesLength = transactionHashes.length;
-
-    for (let i = 0; i < hashesLength; i++) {
-      const transaction = await this.getTransactionByHash(transactionHashes[i]);
-
-      const cryptoDeposit = await this.getAmountDeposited(
-        transaction.hash,
-        transaction._raw.vout,
-      );
-      if (cryptoDeposit.amount > 0) {
-        await this.broadcastDeposit(cryptoDeposit);
-      }
-    }
-    await this.blockDocumentModel.updateOne(
-      {
-        height: blockNumber,
-        chain: 'bitcoin',
-      },
-      {
-        hasCompletedScan: true,
-      },
-    );
+    // const blockData = await this.btcClient.chain.getBlockByNumber(
+    //   blockNumber,
+    //   false,
+    // );
+    // const transactionHashes: Array<string> = blockData.transactions.map(
+    //   (tx) => tx,
+    // );
+    //
+    // console.log(transactionHashes, blockNumber);
+    // // const transactionHashes = [
+    // //   '9fe83e4608f24356fcaa70a7eeed29adb3cfb05f7cd48c03de06191db6045382',
+    // // ];
+    //
+    // const hashesLength = transactionHashes.length;
+    //
+    // for (let i = 0; i < hashesLength; i++) {
+    //   const transaction = await this.getTransactionByHash(transactionHashes[i]);
+    //
+    //   const cryptoDeposit = await this.getAmountDeposited(
+    //     transaction.hash,
+    //     transaction._raw.vout,
+    //   );
+    //   if (cryptoDeposit.amount > 0) {
+    //     await this.broadcastDeposit(cryptoDeposit);
+    //   }
+    // }
+    // await this.blockDocumentModel.updateOne(
+    //   {
+    //     height: blockNumber,
+    //     chain: 'bitcoin',
+    //   },
+    //   {
+    //     hasCompletedScan: true,
+    //   },
+    // );
   }
   private async broadcastDeposit(cryptoDeposit: CryptoDepositDto) {
     const existingDeposit = await this.depositDocumentModel.findOne({
