@@ -31,7 +31,10 @@ export class AddressService {
     userId: string,
     createAddressDto: CreateAddressDto,
   ): Promise<AddressDocument> {
-    const credential = await this.credentialSeedDocumentModel.findById(userId);
+    const credential = await this.credentialSeedDocumentModel.findOne({
+      user: userId,
+    });
+
     if (credential) {
       const seedPhrase = await this.authenticationService.decryptSeedPhrase(
         credential.seedPhrase,

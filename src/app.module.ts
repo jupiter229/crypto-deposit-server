@@ -13,6 +13,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { AddressModule } from './address/address.module';
 import { BroadcasterModule } from './broadcaster/broadcaster.module';
 import { NetworkClientModule } from './network-client/network-client.module';
+import { SettlementModule } from './settlement/settlement.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { NetworkClientModule } from './network-client/network-client.module';
     AddressModule,
     BroadcasterModule,
     NetworkClientModule,
+    SettlementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
