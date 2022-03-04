@@ -9,6 +9,10 @@ import {
   SupportedAssetsSchema,
 } from './schema/supported.assets';
 
+import { SplitPayment, SplitPaymentSchema } from './schema/split.payment';
+
+import { SettlementService } from './settlement.service';
+
 @Module({
   controllers: [SettlementController],
   imports: [
@@ -17,7 +21,9 @@ import {
       { name: Address.name, schema: AddressSchema },
       { name: Auth.name, schema: AuthSchema },
       { name: SupportedAssets.name, schema: SupportedAssetsSchema },
+      { name: SplitPayment.name, schema: SplitPaymentSchema },
     ]),
   ],
+  providers: [SettlementService],
 })
 export class SettlementModule {}
